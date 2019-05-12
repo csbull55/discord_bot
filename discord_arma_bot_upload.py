@@ -4,7 +4,6 @@ import numpy as np
 # i need to put this in a local file and read from it
 token = ''
 
-
 client = discord.Client()
 
 # defines the arma drop rates, I kept true to jamflex's drop rate code config
@@ -55,6 +54,5 @@ async def on_ready():
     print(client.user.name)
     print(client.user.id)
     print('------')
-
 
 client.run(token)
