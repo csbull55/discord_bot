@@ -5,7 +5,7 @@ import pandas as pd
 import osrs_sim
 
 # defines some variables
-token = 'NTc1MTEyNzgzODQzMTY0MTYw.XPXWig.lTWgGBRNtgGRGq_3ISQ36-1ulss'
+token = ''
 client = discord.Client()
 
 # reads drop rates file
