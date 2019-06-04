@@ -1,7 +1,7 @@
 import fractions as fc
-import frac_functions as ff
 import pandas as pd
 import numpy as np
+import osrs_sim
 
 # reads the drop rates csv
 drop_rates = pd.read_csv("F:\Projects\Programming_projects\Discord_bot\mumble_bot\drop_rates.csv")
@@ -16,7 +16,7 @@ def roll_df(boss):
     df_roll['d_rate'] = df_roll['Rate'].apply(lambda x: fc.Fraction(x).denominator)
 
     # finds lcm and creates new column on # of rolls
-    lcm = ff.lcm_multi(df_roll['d_rate'])
+    lcm = osrs_sim.lcm_multi(df_roll['d_rate'])
     df_roll['rolls'] = lcm / df_roll['d_rate']
     return df_roll
 
@@ -29,23 +29,22 @@ def boss_lcm(boss):
     df_roll['d_rate'] = df_roll['Rate'].apply(lambda x: fc.Fraction(x).denominator)
 
     # finds lcm and creates new column on # of rolls
-    lcm = ff.lcm_multi(df_roll['d_rate'])
+    lcm = osrs_sim.lcm_multi(df_roll['d_rate'])
     return lcm
 
-kc = 50
+
+kc = 200
 boss = 'arma'
 # creates an array of rolls for kc entered, uses function to find lcm for boss
 roll = np.random.randint(1, boss_lcm(boss), size=kc)
 
 item_df = roll_df(boss)
-lcm = boss_lcm('Arma')
 
 drops = []
 
 print(item_df.head(1))
 
 # checks rolls against drop table, returns item and adds to 'drops' list
-drop_array = list(range(0, int(lcm)))
 
 item_key = pd.DataFrame(columns=['key', 'item'])
 i = 1
@@ -56,4 +55,8 @@ for index, row in item_df.iterrows():
         count -= 1
         i += 1
 
-print(item_key)
+for item in item_key['key']:
+    if int(item) in roll:
+        drops.append((item_key['item'][int(item)]))
+
+print(drop_rates)

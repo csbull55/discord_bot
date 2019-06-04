@@ -1,9 +1,46 @@
+import fractions as fc
 import discord
 import numpy as np
 import pandas as pd
-import drop_rate
+import osrs_sim
 
-# this is the arma sim, replies to message format below
+# defines some variables
+token = 'NTc1MTEyNzgzODQzMTY0MTYw.XPXWig.lTWgGBRNtgGRGq_3ISQ36-1ulss'
+client = discord.Client()
+
+# reads drop rates file
+drop_rates = pd.read_csv("F:\Projects\Programming_projects\Discord_bot\mumble_bot\drop_rates.csv")
+
+
+# defines the functions for returning rates
+def roll_df(boss):
+    # new df for boss inputted
+    df_roll = drop_rates[drop_rates['Boss'] == boss.title()]
+    df_roll.reset_index(drop=True, inplace=True)
+
+    # extracts denominator from rate
+    df_roll['d_rate'] = df_roll['Rate'].apply(lambda x: fc.Fraction(x).denominator)
+
+    # finds lcm and creates new column on # of rolls
+    lcm = osrs_sim.lcm_multi(df_roll['d_rate'])
+    df_roll['rolls'] = lcm / df_roll['d_rate']
+    return df_roll
+
+
+def boss_lcm(boss):
+    # new df for boss inputted
+    df_roll = drop_rates[drop_rates['Boss'] == boss.title()]
+    df_roll.reset_index(drop=True, inplace=True)
+
+    # extracts denominator from rate
+    df_roll['d_rate'] = df_roll['Rate'].apply(lambda x: fc.Fraction(x).denominator)
+
+    # finds lcm and creates new column on # of rolls
+    lcm = osrs_sim.lcm_multi(df_roll['d_rate'])
+    return lcm
+
+
+# this is the boss sim, replies to messages with !boss
 @client.event
 async def on_message(message):
     if message.content.startswith('!boss'):
@@ -13,28 +50,45 @@ async def on_message(message):
         boss = user_input[1]
         kc = int(user_input[2])
 
-        # creates df off boss with items and rates + rolls
-        drop_rate.roll_df(boss)
+        # runs functions for boss
+        item_df = roll_df(boss)
+        lcm = boss_lcm(boss)
 
-        # creates an array of rolls for kc entered, uses function to find lcm for boss
-        roll = np.random.randint(1, drop_rate.boss_lcm(boss), size=kc)
-
+        # creates an array of rolls for kc entered and boss lcm, creates empty drops array
+        roll = np.random.randint(1, lcm, size=kc)
         drops = []
 
+        # creates df for item rolls, uses above function to build
+        item_key = pd.DataFrame(columns=['key', 'item'])
+        i = 1
+        for index, row in item_df.iterrows():
+            count = int(item_df['rolls'][index])
+            while count > 0:
+                item_key.loc[i] = [str(i), item_df.loc[index]['Item']]
+                count -= 1
+                i += 1
+
         # checks rolls against drop table, returns item and adds to 'drops' list
-        for i in boss_drops:
-            for drop in roll:
-                if drop in i[1:]:
-                    drops.append(i[0])
+        for item in item_key['key']:
+            if int(item) in roll:
+                drops.append((item_key['item'][int(item)]))
 
         # returns message based on drops
         if len(drops) == 0:
-            drops_msg = "After {} kc at Kree'arra, you've received zero uniques, the bird is victorious".format(kc)
+            drops_msg = "After {} kc at {}, you've received zero uniques".format(kc, boss.title())
         elif len(drops) >= 1:
             drop_lines = ("\n".join(drops))
-            drops_msg = "In {} kc at Kree'arra, you've been blessed with the following items:\n{}".format(kc, drop_lines)
+            drops_msg = "In {} kc at {}, you've been blessed with the following items:\n{}".format(kc, boss.title(), drop_lines)
+            chuck = 'Chuck it all'
 
         # sends message with results
         channel = message.channel
         await channel.send(drops_msg)
+        await channel.send(chuck)
 
+
+@client.event
+async def on_ready():
+    print('the bot is ready')
+
+client.run(token)
