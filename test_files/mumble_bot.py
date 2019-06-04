@@ -86,7 +86,7 @@ async def on_message(message):
         await channel.send(drops_msg)
         await channel.send(chuck)
 
-
+# lets you know that the bot is ready
 @client.event
 async def on_ready():
     print('the bot is ready')
