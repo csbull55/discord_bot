@@ -1,8 +1,17 @@
 # discord_bot
-As of now the bot only contains a arma drop sim and a hiscores lookup
+As of now the bot only contains a drop sim and a skills lookup
 
-Currently working on created a sim for all bosses
+### test_files
+Various test files relating to this project
 
-There's probably a better way to construct the sim
-but wanted to use numpy arrays/matrix
-as that's what I'm learning at the moment
+This was before I started structuring my projects
+
+### api_test.py
+simple api test off the osrs hiscores page
+
+### discord_arma_bot_upload.py
+first iteration of the arma bot
+
+### discord_bot_skills_upload.py
+first iteration of the skills
+
