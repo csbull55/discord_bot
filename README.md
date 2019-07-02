@@ -1,5 +1,7 @@
 # discord_bot
 As of now the bot only contains a drop sim and a skills lookup
+This repo is archived
+There is a new repo where the bot is deployed on a rpi3
 
 ### test_files
 Various test files relating to this project
